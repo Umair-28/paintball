@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\WelcomeEmail;
 use App\Models\User;
+use PHPUnit\Framework\Constraint\IsEmpty;
 
 class UserController extends Controller
 {
@@ -38,5 +39,18 @@ class UserController extends Controller
             return response()->json(["status"=>false,"message"=>"Failed to create user", "error"=>$e->getMessage()], 500);
         }
 
+    }
+
+    public function getAllUsers(){
+
+       
+
+        $data = User::all();
+      
+        if($data->isEmpty()){
+            return response()->json(["status"=>false, "message"=>"No record found"],404);
+        }
+
+        return response()->json(["status"=>false, "message"=>"Record found", "data"=>$data],200);
     }
 }
