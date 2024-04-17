@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\WelcomeEmail;
 use App\Models\User;
+use Carbon\Carbon;
 use PHPUnit\Framework\Constraint\IsEmpty;
 
 class UserController extends Controller
@@ -19,6 +20,12 @@ class UserController extends Controller
             'lastName' => 'string|required',
             'email' => "email|required|unique:users,email",
             'waiver' => "string|nullable",
+            'street' => "string|nullable",
+            'house_number' => 'string|nullable',
+            'city' => 'string|nullable',
+            'postcode' => 'string|nullable',
+            'dob' => 'date_format:d-m-Y|required',
+            'agb_accepted' => 'boolean',
             'isSubscribed' => 'boolean'
         ]);
 
@@ -27,7 +34,16 @@ class UserController extends Controller
         }
 
         try {
-            $user = User::create($request->only(['firstName', 'lastName', 'email', 'isSubscribed']));
+            $dateOfBirth = Carbon::createFromFormat('d-m-Y', $request->dob);
+
+            // Merge date_of_birth back into the request data
+            $requestData = $request->all();
+            $requestData['dob'] = $dateOfBirth;
+
+    
+            // Create the user with the modified request data
+            $user = User::create($requestData);
+           
 
             if($request->isSubscribed === true){
                
