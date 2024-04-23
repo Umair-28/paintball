@@ -67,6 +67,6 @@ class UserController extends Controller
             return response()->json(["status"=>false, "message"=>"No record found"],404);
         }
 
-        return response()->json(["status"=>false, "message"=>"Record found", "data"=>$data],200);
+        return response()->json(["status"=>true, "message"=>"Record found", "data"=>$data],200);
     }
 }
