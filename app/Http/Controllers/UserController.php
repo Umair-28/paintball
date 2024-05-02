@@ -21,7 +21,7 @@ class UserController extends Controller
             'firstName' => "string|required",
             'lastName' => 'string|required',
             'email' => "email|required|unique:users,email",
-            'waiver' => "boolean",
+            'waiver' => 'boolean',
             'street' => "string|nullable",
             'house_number' => 'string|nullable',
             'city' => 'string|nullable',
@@ -41,11 +41,13 @@ class UserController extends Controller
 
             // Merge date_of_birth back into the request data
             $requestData = $request->except('image');
+            
             $requestData['dob'] = $dateOfBirth;
 
     
             // Create the user with the modified request data
             $user = User::create($requestData);
+            
 
             if ($request->hasFile('image') ) {
                 
@@ -75,11 +77,11 @@ class UserController extends Controller
             $user = User::find($user->id);
             
 
-            //if($request->isSubscribed == 1){
+            if($request->isSubscribed == 1){
                
-                Mail::to('umairamjad3080@gmail.com')->send(new WelcomeEmail('Umair'));
+                Mail::to($user->email)->send(new WelcomeEmail($user->firstName));
                 // Mail::to($user->email)->send(new WelcomeEmail($user->firstName));
-            //}
+            }
 
             return response()->json(["status"=>true,"message"=>"The terms and conditions have been accepted, please pass the tray on to the next player", "data"=>$user], 201);
     } catch (\Exception $e) {
