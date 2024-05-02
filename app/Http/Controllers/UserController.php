@@ -21,7 +21,7 @@ class UserController extends Controller
             'firstName' => "string|required",
             'lastName' => 'string|required',
             'email' => "email|required|unique:users,email",
-            'waiver' => "string|nullable",
+            'waiver' => "boolean",
             'street' => "string|nullable",
             'house_number' => 'string|nullable',
             'city' => 'string|nullable',
@@ -58,24 +58,33 @@ class UserController extends Controller
                     $url = URL::to("/images/".$imageName);
                     
 
-                    $user->update([
-                        'path' => $url
-                    ]);
+                    // if($request->file('image')){
+                        $user->update([
+                            'path' => $url
+                        ]);
+                    // }else{
+                    //     $user->update([
+                    //         'path' => ""
+                    //     ]);
+                    // }
 
                     $user->save();
                     
                 
             } 
+            $user = User::find($user->id);
+            
 
-            if($request->isSubscribed === true){
+            //if($request->isSubscribed == 1){
                
-                Mail::to($user->email)->send(new WelcomeEmail($user->firstName));
-            }
+                Mail::to('umairamjad3080@gmail.com')->send(new WelcomeEmail('Umair'));
+                // Mail::to($user->email)->send(new WelcomeEmail($user->firstName));
+            //}
 
             return response()->json(["status"=>true,"message"=>"The terms and conditions have been accepted, please pass the tray on to the next player", "data"=>$user], 201);
-        } catch (\Exception $e) {
-            return response()->json(["status"=>false,"message"=>"Failed to create user", "error"=>$e->getMessage()], 500);
-        }
+    } catch (\Exception $e) {
+                    return response()->json(["status"=>false,"message"=>"Failed to create user", "error"=>$e->getMessage()], 500);
+                }
 
     }
 
