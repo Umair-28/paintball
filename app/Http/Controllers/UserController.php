@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\WelcomeEmail;
 use App\Models\User;
 use Carbon\Carbon;
+use URL;
+
 use PHPUnit\Framework\Constraint\IsEmpty;
 
 class UserController extends Controller
@@ -26,7 +28,8 @@ class UserController extends Controller
             'postcode' => 'string|nullable',
             'dob' => 'date_format:d-m-Y|required',
             'agb_accepted' => 'boolean',
-            'isSubscribed' => 'boolean'
+            'isSubscribed' => 'boolean',
+            'verzichtserkarung' => 'boolean'
         ]);
 
         if($validator->fails()){
@@ -37,13 +40,32 @@ class UserController extends Controller
             $dateOfBirth = Carbon::createFromFormat('d-m-Y', $request->dob);
 
             // Merge date_of_birth back into the request data
-            $requestData = $request->all();
+            $requestData = $request->except('image');
             $requestData['dob'] = $dateOfBirth;
 
     
             // Create the user with the modified request data
             $user = User::create($requestData);
-           
+
+            if ($request->hasFile('image') ) {
+                
+               $image = $request->file('image');
+                    $imageExtension = $image->getClientOriginalExtension(); // Get the original extension of the file
+                    $imageName = time() . '_' . uniqid() . '.' . $imageExtension; // Append the original extension to the generated filename
+    
+                    $path =  $image->move(public_path('images'), $imageName);
+                    
+                    $url = URL::to("/images/".$imageName);
+                    
+
+                    $user->update([
+                        'path' => $url
+                    ]);
+
+                    $user->save();
+                    
+                
+            } 
 
             if($request->isSubscribed === true){
                
@@ -61,12 +83,17 @@ class UserController extends Controller
 
        
 
-        $data = User::all();
+        $users = User::all();
       
-        if($data->isEmpty()){
+        if($users->isEmpty()){
             return response()->json(["status"=>false, "message"=>"No record found"],404);
         }
 
-        return response()->json(["status"=>true, "message"=>"Record found", "data"=>$data],200);
+        return response()->json(["status"=>true, "message"=>"Record found", "data"=>$users],200);
+    }
+
+    public function getUserById(){
+
+
     }
 }
