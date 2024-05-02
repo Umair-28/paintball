@@ -20,7 +20,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'firstName' => "string|required",
             'lastName' => 'string|required',
-            'email' => "email|required|unique:users,email",
+            'email' => "email|required",
             'waiver' => 'boolean',
             'street' => "string|nullable",
             'house_number' => 'string|nullable',
